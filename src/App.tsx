@@ -9,7 +9,7 @@ import BlogPage from "./pages/BlogPage";
 import WriteBlog from "./pages/WriteBlog";
 import CategoriesForBlog from "./pages/CategoriesForBlog";
 import ProtectedRoute from "./components/ProtectedRoute";
-import MyBlog from "./pages/MyBlog";
+import MyBlogs from "./pages/MyBlogs";
 
 function App() {
   return (
@@ -34,14 +34,6 @@ function App() {
             }
           />
           <Route
-            path="/my-blog"
-            element={
-              <Layout>
-                <MyBlog />
-              </Layout>
-            }
-          />
-          <Route
             path="/write-blog"
             element={
               <Layout>
@@ -58,8 +50,7 @@ function App() {
             }
           />
         </Route>
-
-        {/* Public routes */}
+        <Route path="/my-blogs" element={<Layout><MyBlogs /></Layout>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

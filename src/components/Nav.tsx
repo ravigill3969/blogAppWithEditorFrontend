@@ -7,7 +7,7 @@ import { useState } from "react";
 
 function Nav() {
   const isLoggedIn = useAppStore((state) => state.isLoggedIn);
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
 
   return (
     <div className="m-3">
@@ -49,17 +49,15 @@ function Nav() {
                 <Menu />
               </Button>
               <div className="absolute">
-                {show ? (
+                {/* {show ? (
                   <div className="fixed flex flex-col bg-black text-white p-3 rounded-xl right-10">
                     <span className="hover:underline">Profile</span>
-                    <Link to={"/my-blog"}>
-                      <span className="hover:underline">My blogs</span>
-                    </Link>
+                  <span>Blogs</span>
                     <span className="hover:underline">Logout</span>
                   </div>
                 ) : (
                   ""
-                )}
+                )} */}
               </div>
             </>
           )}

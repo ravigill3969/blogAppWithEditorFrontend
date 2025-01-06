@@ -56,6 +56,7 @@ type UserProps = {
 type ReplyProps = {
   content: string;
   userId: string;
+  _id:string
 };
 
 export interface Comment {

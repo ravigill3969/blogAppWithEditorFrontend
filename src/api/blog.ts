@@ -107,7 +107,26 @@ export const useGetSingleBlogWithId = (id: string) => {
   return { data, isPending, isFetching, error };
 };
 
-export const useGetMyBlogs = (id:string)=>{
-  console.log(id)
-  // const response = await fetch()
-}
+export const useGetMyBlogs = () => {
+  const getMyBlogs = async () => {
+    const response = await fetch(`${BASE_URL}/blog/my-blogs`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const res = await response.json();
+
+    if (!response.ok) {
+      throw new Error(res.message || "something went wrong");
+    }
+
+    return res;
+  };
+
+  const query = useQuery({
+    queryKey: ["getMyBlogs"],
+    queryFn: getMyBlogs,
+  });
+
+  return query;
+};

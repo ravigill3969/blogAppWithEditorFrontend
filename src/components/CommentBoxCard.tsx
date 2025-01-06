@@ -1,9 +1,11 @@
 import useGetUserId from "@/hooks/use-getUserId";
+
 import {
   useDeleteComment,
   useLikeComment,
   useUpdateComment,
 } from "@/api/comment";
+
 import {
   Edit,
   MessageCircleCodeIcon,
@@ -11,13 +13,25 @@ import {
   Trash,
   Upload,
 } from "lucide-react";
+
 import { useEffect, useState } from "react";
+
 import { Textarea } from "./ui/textarea";
+import { Button } from "./ui/button";
+
+import { useAddReply, useGetRepliesWithCommentId } from "@/api/reply";
+import SeeReplies from "./SeeReplies";
 
 interface User {
   _id: string;
   username: string;
   imageUrl: string;
+}
+
+interface Reply {
+  _id: string;
+  content: string;
+  userId: string;
 }
 
 interface Comment {
@@ -27,6 +41,7 @@ interface Comment {
   createdAt: string;
   like: string[];
   user: User;
+  replies: Reply[];
 }
 
 interface CommentBoxProps {
@@ -37,14 +52,26 @@ function CommentBox({ data }: CommentBoxProps) {
   const [isEditingId, setIsEditingId] = useState<string | null>(null);
   const [isEditingValue, setIsEditingValue] = useState<string>("");
 
+  const [replyToId, setReplyToId] = useState<string | null>();
+  const [reply, setReply] = useState<string>("");
+
+  const [getRepliesForCommentId, setRepliesFOrCommentId] = useState<
+    string | null
+  >();
+
+  const { data: repliesForComment } = useGetRepliesWithCommentId(
+    getRepliesForCommentId
+  );
+
   const userId = useGetUserId();
 
   const { mutate } = useDeleteComment();
   const { mutate: updateCommentFn, isSuccess } = useUpdateComment();
   const { mutate: mutateLikeComment } = useLikeComment();
 
+  const { mutate: addReplyMutate } = useAddReply();
+
   const likeHandler = (id: string) => {
-    console.log(id);
     mutateLikeComment({ commentId: id, userId: userId || "" });
   };
 
@@ -65,6 +92,10 @@ function CommentBox({ data }: CommentBoxProps) {
       setIsEditingId(null);
     }
   }, [isSuccess]);
+
+  const submitReply = (id: string) => {
+    addReplyMutate({ commentId: id, content: reply });
+  };
 
   return (
     <>
@@ -104,6 +135,7 @@ function CommentBox({ data }: CommentBoxProps) {
                 <div
                   className="flex gap-1 hover:cursor-pointer items-center"
                   title="Replies"
+                  onClick={() => setReplyToId(item._id)}
                 >
                   <MessageCircleCodeIcon size={15} />
                   <span>Reply</span>
@@ -141,7 +173,49 @@ function CommentBox({ data }: CommentBoxProps) {
                   </>
                 ) : null}
               </div>
-              <p>See replies</p>
+              {replyToId === item._id ? (
+                <div>
+                  <Textarea
+                    placeholder="add a reply"
+                    className="mt-2 mb-2 resize-none"
+                    rows={1}
+                    cols={1}
+                    onChange={(e) => {
+                      setReply(e.target.value);
+                    }}
+                  />
+                  <div className="flex gap-3">
+                    <Button onClick={() => submitReply(item._id)}>Add</Button>
+                    <Button onClick={() => setReplyToId(null)}>Cancel</Button>
+                  </div>
+                </div>
+              ) : (
+                ""
+              )}
+              {getRepliesForCommentId === item._id ? (
+                <>
+                  <div className="">
+                    <SeeReplies data={repliesForComment} />
+                  </div>
+                  <span
+                    className="text-gray-400 text-bold hover:underline"
+                    onClick={() => setRepliesFOrCommentId("")}
+                  >
+                    Hide
+                  </span>
+                </>
+              ) : (
+                <span
+                  className="text-gray-400 text-bold hover:underline"
+                  onClick={() => {
+                    setRepliesFOrCommentId(item._id);
+                  }}
+                >
+                  {item.replies.length > 0
+                    ? `See ${item.replies.length} replies `
+                    : ""}
+                </span>
+              )}
             </div>
           ))}
       </div>
