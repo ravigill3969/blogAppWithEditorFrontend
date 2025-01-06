@@ -1,12 +1,19 @@
-import { useBlogCreate } from "@/api/blog";
+import {
+  useBlogCreate,
+  useEditMyBlog,
+  useGetSingleBlogWithId,
+} from "@/api/blog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useImageUpload from "@/components/useImageUpload";
 import { PencilIcon, PictureInPicture, PlusCircleIcon, X } from "lucide-react";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { RootState } from "@/redux/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import CategoriesForBlog from "./CategoriesForBlog";
+import { onAddCategory } from "@/redux/slice/categorySlice";
 
 function WriteBlog() {
   const [showIcons, setShowIcons] = useState(false); // Controls visibility of icons
@@ -16,7 +23,28 @@ function WriteBlog() {
     import.meta.env.VITE_APP_CLOUDINARY_CLOUD_NAME
   );
 
+  const dispatch = useDispatch();
 
+  const { id: blogId } = useParams();
+
+  const { data: dataForEditing } = useGetSingleBlogWithId(blogId);
+
+  const { mutate: editMutate } = useEditMyBlog();
+
+  useEffect(() => {
+    if (blogId && dataForEditing) {
+      setTitle(dataForEditing.title);
+      setContent(
+        dataForEditing.blogInfo?.map((block) => ({
+          type: block.type,
+          content: block.content,
+        }))
+      );
+      dispatch(onAddCategory(dataForEditing.value));
+    }
+  }, [dataForEditing, blogId, dispatch]);
+
+  const value = useSelector((state: RootState) => state.categoryReducer.value);
   const { isPending, mutate } = useBlogCreate();
   const [title, setTitle] = useState(""); // Stores the blog title
   const [content, setContent] = useState<
@@ -27,7 +55,6 @@ function WriteBlog() {
       content: "",
     },
   ]);
-
 
   const handleAddField = (type: "paragraph" | "image") => {
     setContent((prev) => [
@@ -68,10 +95,12 @@ function WriteBlog() {
     }
   };
 
-  const value = useSelector((state: RootState) => state.categoryReducer.value);
-
   const handleUpload = () => {
     mutate({ title, content, value });
+  };
+
+  const handleEditUpload = (blogId: string) => {
+    editMutate({ _id: blogId, title, value, content });
   };
 
   return (
@@ -85,9 +114,17 @@ function WriteBlog() {
             onChange={(e) => setTitle(e.target.value)}
             className="shadow-lg"
           />
-          <Button disabled={loading} onClick={handleUpload}>
-            Upload
+          <Button
+            disabled={loading} // Disable the button if the 'loading' state is true
+            onClick={
+              blogId && dataForEditing
+                ? () => handleEditUpload(blogId)
+                : () => handleUpload
+            }
+          >
+            {blogId && dataForEditing ? "Edit" : "Upload"}
           </Button>
+
           <Button disabled={loading || isPending}>Preview</Button>
         </div>
       </div>
@@ -124,17 +161,18 @@ function WriteBlog() {
             )}
             {block.type === "image" && (
               <div className="flex items-center">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  className="shadow-lg flex-grow"
-                  onChange={(e) => handleImageUpload(e, index)}
-                />
-                {block.content && (
+                {block.content ? (
                   <img
                     src={block.content}
                     alt="Uploaded"
                     className="w-full h-auto mt-2 rounded"
+                  />
+                ) : (
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    className="shadow-lg flex-grow"
+                    onChange={(e) => handleImageUpload(e, index)}
                   />
                 )}
               </div>
@@ -148,7 +186,7 @@ function WriteBlog() {
       </div>
 
       {/* Add Content Buttons */}
-      <div className="max-w-[800px] min-w-[800px] flex mt-6 gap-3 items-center">
+      <div className="max-w-[800px] min-w-[800px] flex mt-6 gap-3 mb-2 items-center">
         <PlusCircleIcon
           size={40}
           className="cursor-pointer"
@@ -173,6 +211,7 @@ function WriteBlog() {
           </div>
         )}
       </div>
+      <CategoriesForBlog blogId={blogId} />
     </div>
   );
 }

@@ -49,8 +49,23 @@ function App() {
               </Layout>
             }
           />
+          <Route
+            path="/edit-blog/:id"
+            element={
+              <Layout>
+                <WriteBlog />
+              </Layout>
+            }
+          />
+          <Route
+            path="/my-blogs"
+            element={
+              <Layout>
+                <MyBlogs />
+              </Layout>
+            }
+          />
         </Route>
-        <Route path="/my-blogs" element={<Layout><MyBlogs /></Layout>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

@@ -18,7 +18,7 @@ function SeeComments({ blogId }: ISeeComments) {
   const { toggleSidebar } = useSidebar();
 
   const { data, isLoading, isPending } = useGetCommentsForBlog(blogId);
-  console.log(data)
+
   if (isLoading || isPending) {
     <Loading />;
   }

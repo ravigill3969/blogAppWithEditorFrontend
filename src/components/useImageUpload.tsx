@@ -26,7 +26,6 @@ const useImageUpload = (
           body: formData,
         }
       );
-
       if (!response.ok) {
         throw new Error("Image upload failed");
       }
@@ -34,7 +33,7 @@ const useImageUpload = (
       const data = await response.json();
       setUrl(data.secure_url);
       setLoading(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "Something went wrong");
       setLoading(false);

@@ -11,7 +11,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { Input } from "@/components/ui/input";
 import { MoveRight } from "lucide-react";
 
-function CategoriesForBlog() {
+type CategoriesForBlogProps = {
+  blogId?: string;
+};
+
+function CategoriesForBlog({ blogId }: CategoriesForBlogProps) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -23,7 +27,6 @@ function CategoriesForBlog() {
   }, [selectedCategory, dispatch]);
 
   const value = useSelector((state: RootState) => state.categoryReducer.value);
-  console.log(value);
 
   const onSkip = () => {
     navigate("/write-blog");
@@ -43,9 +46,13 @@ function CategoriesForBlog() {
         <div className="text-2xl font-bold text-center my-9">
           Choose category for your blog
         </div>
-        <Link to={"/write-blog"}>
-          <Button onClick={onSkip}>Skip</Button>
-        </Link>
+        {blogId ? (
+          ""
+        ) : (
+          <Link to={"/write-blog"}>
+            <Button onClick={onSkip}>Skip</Button>
+          </Link>
+        )}
       </CardTitle>
       <CardContent>
         <div className="flex flex-wrap items-center justify-center gap-6">
@@ -60,6 +67,7 @@ function CategoriesForBlog() {
                 value={category}
                 onChange={() => setSelectedCategory(category)}
                 className="sr-only peer"
+                checked={value === category}
               />
               {/* Custom radio indicator */}
               <div className="w-4 h-4 rounded-full border border-gray-400 peer-checked:bg-gray-500 peer-checked:border-gray-500"></div>
@@ -86,11 +94,15 @@ function CategoriesForBlog() {
             }}
           />
         )}
-        <Link to={"/write-blog"}>
-          <Button className="flex items-center justify-center min-w-full p-3 ">
-            Next <MoveRight />
-          </Button>
-        </Link>
+        {blogId ? (
+          ""
+        ) : (
+          <Link to={"/write-blog"}>
+            <Button className="flex items-center justify-center min-w-full p-3 ">
+              Next <MoveRight />
+            </Button>
+          </Link>
+        )}
       </CardFooter>
     </Card>
   );

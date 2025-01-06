@@ -75,7 +75,7 @@ export const useGetAllBlogs = () => {
   return { data, isPending, isFetching };
 };
 
-export const useGetSingleBlogWithId = (id: string) => {
+export const useGetSingleBlogWithId = (id: string | undefined) => {
   const getSingleBlogWithId = async (): Promise<Blog> => {
     const response = await fetch(`${BASE_URL}/blog/${id}`, {
       method: "GET",
@@ -98,6 +98,7 @@ export const useGetSingleBlogWithId = (id: string) => {
     queryKey: ["getSingleBlogWithId"],
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+    enabled: !!id,
   });
 
   if (isError) {
@@ -107,8 +108,25 @@ export const useGetSingleBlogWithId = (id: string) => {
   return { data, isPending, isFetching, error };
 };
 
+type BlogPost = {
+  _id: string;
+  title: string;
+  category: string;
+
+  blogInfo: Array<{
+    content: string;
+    type: string;
+  }>;
+  author?: string;
+  likes: Array<string>;
+  comments?: Array<{
+    content: string;
+    author: string;
+  }>;
+};
+
 export const useGetMyBlogs = () => {
-  const getMyBlogs = async () => {
+  const getMyBlogs = async (): Promise<BlogPost[]> => {
     const response = await fetch(`${BASE_URL}/blog/my-blogs`, {
       method: "GET",
       credentials: "include",
@@ -129,4 +147,41 @@ export const useGetMyBlogs = () => {
   });
 
   return query;
+};
+
+type editBlog = {
+  _id: string;
+  title: string;
+  content: blogI[];
+  value: string | null;
+};
+
+export const useEditMyBlog = () => {
+  const editMyBlog = async ({
+    content,
+    title,
+    value,
+    _id,
+  }: editBlog): Promise<void> => {
+    const response = await fetch(`${BASE_URL}/blog/edit-blog/${_id}`, {
+      credentials: "include",
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content, title, value }),
+    });
+
+    const res = await response.json();
+    if (!response.ok) {
+      throw new Error(res.message || "Internal server error");
+    }
+  };
+
+  const mutation = useMutation({
+    mutationKey: ["editMyBlog"],
+    mutationFn: editMyBlog,
+  });
+
+  return mutation;
 };

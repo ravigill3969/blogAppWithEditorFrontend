@@ -13,7 +13,7 @@ import { Label } from "../components/ui/label";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {  TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 
 import logo from "../assets/logo.svg";
 import { Link, Navigate } from "react-router-dom";
@@ -25,9 +25,6 @@ function Login() {
   const { mutate, isPending } = useLoginUser();
 
   const isLoggedIn = useAppStore((state) => state.isLoggedIn);
-  if(isLoggedIn){
-    return <Navigate to={'/'}/>
-  }
 
   const {
     register,
@@ -37,6 +34,10 @@ function Login() {
     resolver: zodResolver(loginSchema),
   });
 
+  if (isLoggedIn) {
+    return <Navigate to={"/"} />;
+  }
+  
   const onSubmit = (data: LoginFormValues) => {
     mutate(data);
   };

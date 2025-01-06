@@ -24,6 +24,7 @@ export interface Blog {
   author: Author; // Author now references the Author interface
   blogInfo: BlogInfo[];
   category: string;
+  value: string;
   comments: Comment[];
   likes: string[]; // Array of user IDs or entities who liked the post
   createdAt?: string; // Optional ISO date string
